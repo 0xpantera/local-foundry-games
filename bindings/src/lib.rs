@@ -4,3 +4,8 @@
 //! Do not manually edit these files.
 //! These files may be overwritten by the codegen system at any time.
 pub mod counter;
+pub mod game_1;
+pub mod game_2;
+pub mod game_3;
+pub mod game_4;
+pub mod game_5;
