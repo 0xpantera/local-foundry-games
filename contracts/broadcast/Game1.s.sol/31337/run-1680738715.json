@@ -1,0 +1,48 @@
+{
+  "transactions": [
+    {
+      "hash": "0x1bc98d3f3ea0a52b549380d91eaa749418660da95ab62b92b6341d42ab2aac6a",
+      "transactionType": "CREATE",
+      "contractName": "Game1",
+      "contractAddress": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "function": null,
+      "arguments": null,
+      "rpc": "http://localhost:8545",
+      "transaction": {
+        "type": "0x02",
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gas": "0x1bed1",
+        "value": "0x0",
+        "data": "0x6080604052348015600f57600080fd5b5060a08061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063473ca96c14602d575b600080fd5b60336035565b005b6040513381527f745c90b656b4aafe296c8ca35aeacfe56cb96c90e1d320e5da643fff1051b6c09060200160405180910390a156fea264697066735822122013281e954d6de1c6d4de88516752a74ed4ca02e6f300114af24cb1d0cced0e4a64736f6c63430008130033",
+        "nonce": "0x2",
+        "accessList": []
+      },
+      "additionalContracts": []
+    }
+  ],
+  "receipts": [
+    {
+      "transactionHash": "0x1bc98d3f3ea0a52b549380d91eaa749418660da95ab62b92b6341d42ab2aac6a",
+      "transactionIndex": "0x0",
+      "blockHash": "0xd01ea5a0254cdac7614eaaed3b50534306b097fc9d1caa88434dca0fbeba4967",
+      "blockNumber": "0x3",
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "to": null,
+      "cumulativeGasUsed": "0x157b5",
+      "gasUsed": "0x157b5",
+      "contractAddress": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "logs": [],
+      "status": "0x1",
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "effectiveGasPrice": "0xe07f24e7"
+    }
+  ],
+  "libraries": [],
+  "pending": [],
+  "path": "/Users/francos/Documents/ethereum/local-foundry-games/contracts/broadcast/Game1.s.sol/31337/run-latest.json",
+  "returns": {},
+  "timestamp": 1680738715,
+  "chain": 31337,
+  "multi": false,
+  "commit": "39d17a2"
+}
