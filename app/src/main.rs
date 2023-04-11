@@ -1,7 +1,8 @@
 use bindings::game_1::Game1;
 use bindings::game_2::Game2;
+use bindings::game_3::Game3;
 
-use ethers::{types::Address};
+use ethers::types::{Address, U256};
 use ethers::providers::{Provider, Http, Middleware};
 
 use eyre::Result;
@@ -12,8 +13,30 @@ async fn main() -> Result<()> {
     let rpc_url = "http://localhost:8545";
     let sender: Address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".parse()?;
     
-    call_game1(rpc_url, sender).await?;
-    call_game2(rpc_url, sender).await?;
+    //call_game1(rpc_url, sender).await?;
+    //call_game2(rpc_url, sender).await?;
+    call_game3(rpc_url, sender).await?;
+
+    Ok(())
+}
+
+async fn call_game3(rpc_url: &str, sender: Address) -> Result<()> {
+    let contract_address: Address = "0x9a676e781a523b5d0c0e43731313a708cb607508".parse()?;
+
+    let prov = Provider::<Http>::try_from(rpc_url)?;
+    let provider = Arc::new(prov.with_sender(sender));
+
+    let contract = Game3::new(contract_address, provider.clone());
+    
+    // TODO: learn how to read public methods from contract
+    // y: u8 should be read from cotract (`uint y = 210;`)
+    let y = 210_u8;
+    let threshold = 255_u8;
+    let x = threshold - y;
+
+    let call_win = contract.win(x);
+    let win_tx = call_win.send().await?.log_msg("winning...").await?.unwrap();
+    println!("RECEIPT:\n{:?}", win_tx);
 
     Ok(())
 }
