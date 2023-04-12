@@ -1,6 +1,7 @@
 use bindings::game_1::Game1;
 use bindings::game_2::Game2;
 use bindings::game_3::Game3;
+use bindings::game_4::Game4;
 
 use ethers::types::{Address, U256};
 use ethers::providers::{Provider, Http, Middleware};
@@ -15,7 +16,26 @@ async fn main() -> Result<()> {
     
     //call_game1(rpc_url, sender).await?;
     //call_game2(rpc_url, sender).await?;
-    call_game3(rpc_url, sender).await?;
+    //call_game3(rpc_url, sender).await?;
+    call_game4(rpc_url, sender).await?;
+
+    Ok(())
+}
+
+async fn call_game4(rpc_url: &str, sender: Address) -> Result<()> {
+    let contract_address: Address = "0xc6e7df5e7b4f2a278906862b61205850344d4e7d".parse()?;
+
+    let prov = Provider::<Http>::try_from(rpc_url)?;
+    let provider = Arc::new(prov.with_sender(sender));
+
+    let contract = Game4::new(contract_address, provider.clone());
+    
+    let y: u8 = 210;
+    let x: u8 = 56;
+
+    let call_win = contract.win(x);
+    let win_tx = call_win.send().await?.log_msg("winning...").await?.unwrap();
+    println!("RECEIPT:\n{:?}", win_tx);
 
     Ok(())
 }
