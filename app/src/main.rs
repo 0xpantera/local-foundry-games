@@ -2,6 +2,7 @@ use bindings::game_1::Game1;
 use bindings::game_2::Game2;
 use bindings::game_3::Game3;
 use bindings::game_4::Game4;
+use bindings::game_5::Game5;
 
 use ethers::types::{Address, U256};
 use ethers::providers::{Provider, Http, Middleware};
@@ -17,7 +18,37 @@ async fn main() -> Result<()> {
     //call_game1(rpc_url, sender).await?;
     //call_game2(rpc_url, sender).await?;
     //call_game3(rpc_url, sender).await?;
-    call_game4(rpc_url, sender).await?;
+    //call_game4(rpc_url, sender).await?;
+    call_game5(rpc_url, sender).await?;
+
+    Ok(())
+}
+
+async fn call_game5(rpc_url: &str, sender: Address) -> Result<()> {
+    let contract_address: Address = "0x4ed7c70f96b99c776995fb64377f0d4ab3b0e1c1".parse()?;
+
+    let prov = Provider::<Http>::try_from(rpc_url)?;
+    let provider = Arc::new(prov.with_sender(sender));
+
+    let contract = Game5::new(contract_address, provider.clone());
+
+    let amount: U256 = 10000.into();
+    let allowance_call = contract.give_me_allowance(amount);
+    let allowance_tx = allowance_call
+        .send().await?
+        .log_msg("sending allowance").await?.unwrap();
+
+    let mint_call = contract.mint(amount);
+    let mint_tx = mint_call
+        .send().await?
+        .log_msg("minting").await?.unwrap();
+
+    let win_call = contract.win();
+    let win_tx = win_call
+        .send().await?
+        .log_msg("winning").await?.unwrap();
+
+    println!("RECEIPT:\n{:?}", win_tx);
 
     Ok(())
 }
