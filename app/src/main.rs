@@ -4,26 +4,56 @@ use bindings::game_3::Game3;
 use bindings::game_4::Game4;
 use bindings::game_5::Game5;
 
+use ethers::prelude::SignerMiddleware;
+use ethers::prelude::k256::ecdsa::SigningKey;
+use ethers::signers::{LocalWallet, Signer, Wallet};
 use ethers::types::{Address, U256};
 use ethers::providers::{Provider, Http};
 
+use ethers::utils::Anvil;
 use eyre::Result;
 use tokio::try_join;
 use std::sync::Arc;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let root = 
+    let client = create_client()?;
+
+    // TODO: Fix this:
+    // works when client is created inside main.
+    // doesn't work when client is returned from `create_client()`;
+    let contract = Game1::deploy(client, ())?.send().await.unwrap();
+
+    let call = contract.win();
+    let pending_tx = call.send().await?;
+
+    let receipt = pending_tx.await?;
+
+    let logs = contract.winner_filter().from_block(0u64).query().await?;
+    println!("Logs: {:?}", logs);
+
+    
+    Ok(())
 
 
-    let rpc_url = "http://localhost:8545";
-    let sender: Address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".parse()?;
+    //call_game1(client).await?;
+    //let client = create_client()?;
+    //call_game2(client.clone()).await?;
+    //call_game3(client.clone()).await?;
+    //call_game4(client.clone()).await?;
+    //call_game5(client.clone()).await?;
+    /* 
+    let provider = 
+        Provider::<Http>::try_from(anvil.endpoint())?
+            .interval(Duration::from_millis(10u64))
+            .with_sender(wallet);
+    let client = Arc::new(provider);
 
-    let provider = create_provider(rpc_url, sender)?;
-
-    let provider_1 = provider.clone();
+    let provider_1 = client.clone();
     let task_0 =
         tokio::spawn(async move { call_game1(provider_1).await });
+    task_0.await?
 
     let provider_2 = provider.clone();
     let task_1 =
@@ -42,31 +72,23 @@ async fn main() -> Result<()> {
         tokio::spawn(async move { call_game5(provider_5).await });
 
     try_join!(task_0, task_1, task_2, task_3, task_4);
-    
-    Ok(())
-
-    /*
-    for task in [task_0, task_1, task_2, task_3, task_4] {
-        if let Ok(x) = task.await? {
-            println!("Success!");
-        }
-    }*/
-    
-    /*
-    call_game1(provider.clone()).await?;
-    call_game2(provider.clone()).await?;
-    call_game3(provider.clone()).await?;
-    call_game4(provider.clone()).await?;
-    call_game5(provider.clone()).await?;
     */
 }
 
-fn create_provider(rpc_url: &str, sender: Address) -> Result<Arc<Provider<Http>>> {
-    let prov = Provider::<Http>::try_from(rpc_url)?;
-    Ok(Arc::new(prov.with_sender(sender)))
+fn create_client() -> Result<Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>> {
+    let anvil = Anvil::new().port(8545u16).spawn();
+    let wallet: LocalWallet = anvil.keys()[0].clone().into();
+
+    let provider = 
+        Provider::<Http>::try_from(anvil.endpoint())?
+            .interval(Duration::from_millis(10u64));
+    
+    let client = SignerMiddleware::new(provider, wallet.with_chain_id(anvil.chain_id()));
+
+    Ok(Arc::new(client))
 }
 
-async fn call_game5(provider: Arc<Provider<Http>>) -> Result<()> {
+async fn call_game5(provider: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>) -> Result<()> {
     println!("CALLING GAME5\n");
     let contract_address: Address = "0x4ed7c70f96b99c776995fb64377f0d4ab3b0e1c1".parse()?;
 
@@ -93,7 +115,7 @@ async fn call_game5(provider: Arc<Provider<Http>>) -> Result<()> {
     Ok(())
 }
 
-async fn call_game4(provider: Arc<Provider<Http>>) -> Result<()> {
+async fn call_game4(provider: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>) -> Result<()> {
     println!("CALLING GAME4\n");
     let contract_address: Address = "0xc6e7df5e7b4f2a278906862b61205850344d4e7d".parse()?;
 
@@ -109,7 +131,7 @@ async fn call_game4(provider: Arc<Provider<Http>>) -> Result<()> {
     Ok(())
 }
 
-async fn call_game3(provider: Arc<Provider<Http>>) -> Result<()> {
+async fn call_game3(provider: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>) -> Result<()> {
     println!("CALLING GAME3\n");
     let contract_address: Address = "0x9a676e781a523b5d0c0e43731313a708cb607508".parse()?;
 
@@ -128,7 +150,7 @@ async fn call_game3(provider: Arc<Provider<Http>>) -> Result<()> {
     Ok(())
 }
 
-async fn call_game2(provider: Arc<Provider<Http>>) -> Result<()> {
+async fn call_game2(provider: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>) -> Result<()> {
     println!("CALLING GAME2\n");
     let contract_address: Address = "0x8a791620dd6260079bf849dc5567adc3f2fdc318".parse()?;
 
@@ -148,17 +170,19 @@ async fn call_game2(provider: Arc<Provider<Http>>) -> Result<()> {
     Ok(())
 }
 
-async fn call_game1(provider: Arc<Provider<Http>>) -> Result<()> {
+async fn call_game1(client: Arc<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>) -> Result<()> {
     println!("CALLING GAME1\n");
-    let contract_address: Address = "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853".parse()?;
 
-    let contract = Game1::new(contract_address, provider);
+    let contract = Game1::deploy(client, ())?.send().await.unwrap();
+    println!("Game 1 Address:{:?}", contract.address());
 
     let call = contract.win();
     let pending_tx = call.send().await?;
 
     let receipt = pending_tx.await?;
-    println!("Game 1 RECEIPT:\n {:?}", receipt.unwrap());
+
+    let logs = contract.winner_filter().from_block(0u64).query().await?;
+    println!("Logs: {:?}", logs);
 
     Ok(())
 }
